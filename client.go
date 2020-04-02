@@ -31,7 +31,7 @@ type StateData struct {
 	TotalTestResults     int64  `json:"totalTestResults"`
 }
 
-func (s StateData) String() String {
+func (s StateData) String() string {
 	return fmt.Sprintf("State: %s Negative: %d Positive: %d Total: %d", s.State, s.Negative, s.Positive, s.Total)
 }
 
