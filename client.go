@@ -38,14 +38,14 @@ func (s StateData) String() string {
 type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
-	httpClient *http.Client
+	HttpClient *http.Client
 }
 
 func NewClient(httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	c := &Client{httpClient: httpClient, UserAgent: "RestClient"}
+	c := &Client{HttpClient: httpClient, UserAgent: "RestClient"}
 	return c
 }
 
@@ -60,7 +60,7 @@ func (c *Client) GetStates() ([]StateData, error) {
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 
-	resp, err := c.httpClient.Do(req)
+	resp, err := c.HttpClient.Do(req)
 	if err != nil {
 		return nil, err
 	}

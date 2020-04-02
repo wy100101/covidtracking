@@ -4,13 +4,15 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+
+	"github.com/wy100101/covidtracking"
 )
 
 func main() {
-	c := convidtracking.Client{
+	c := covidtracking.Client{
 		BaseURL:    &url.URL{},
 		UserAgent:  "RestClient",
-		httpClient: http.DefaultClient,
+		HttpClient: http.DefaultClient,
 	}
 	states, err := c.GetStates()
 	for s := range states {
