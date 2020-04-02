@@ -7,7 +7,7 @@ import (
 )
 
 func main() {
-	c := convidtrack.Client{
+	c := convidtracking.Client{
 		BaseURL:    &url.URL{},
 		UserAgent:  "RestClient",
 		httpClient: http.DefaultClient,
