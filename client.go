@@ -5,19 +5,22 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 )
 
+// Client basic HTTP client struct for fixed base URL used for REST endpoints
 type Client struct {
 	BaseURL    *url.URL
 	UserAgent  string
-	HttpClient *http.Client
+	HTTPClient *http.Client
 }
 
 func NewClient(httpClient *http.Client) *Client {
 	if httpClient == nil {
 		httpClient = http.DefaultClient
 	}
-	c := &Client{HttpClient: httpClient, UserAgent: "RestClient"}
+	c := &Client{HTTPClient: httpClient, UserAgent: "RestClient"}
 	return c
 }
 
@@ -31,43 +34,117 @@ func (c *Client) Request(method, endpoint, query string) (*http.Response, error)
 	req.Header.Set("Accept", "application/json")
 	req.Header.Set("User-Agent", c.UserAgent)
 
-	return c.HttpClient.Do(req)
+	return c.HTTPClient.Do(req)
 }
 
-func (c *Client) GetStates(states ...string) ([]StateData, error) {
-	var states_data []StateData
+func (c *Client) GetUS() (USData, error) {
+	var usData USData
 	var resp *http.Response
 	var err error
 
-	api_path := "/api/states"
+	apiPath := "/api/us"
+	resp, err = c.Request("GET", apiPath, "")
+	if err != nil {
+		return USData{}, err
+	}
+	defer resp.Body.Close()
+	err = json.NewDecoder(resp.Body).Decode(&usData)
+	if err != nil {
+		return USData{}, err
+	}
+	return usData, nil
+}
+
+// GetStatesDaily test comment
+func (c *Client) GetStatesDaily(states []string, dates []int) (statesDailyData []StateDailyData, err error) {
+	var resp *http.Response
+
+	apiPath := "/api/states/daily"
+	validDates := []int{}
+	minDate := 20200311
+	maxDate, err := strconv.Atoi(time.Now().Format("20060201"))
+	if err != nil {
+		return nil, err
+	}
+
+	for _, d := range dates {
+		if minDate <= d && d <= maxDate {
+			validDates = append(validDates, d)
+		}
+	}
+	if len(validDates) == 0 {
+		return nil, fmt.Errorf("No valid dates specified in dates: %v", dates)
+	}
+
+	for _, d := range validDates {
+		statesDailyDataForDay := []StateDailyData{}
+		if states == nil || len(states) == 0 {
+			query := fmt.Sprintf("date=%d", d)
+			resp, err = c.Request("GET", apiPath, query)
+			if err != nil {
+				return nil, err
+			}
+			defer resp.Body.Close()
+
+			err = json.NewDecoder(resp.Body).Decode(&statesDailyDataForDay)
+			if err != nil {
+				return nil, err
+			}
+			statesDailyData = append(statesDailyData, statesDailyDataForDay...)
+		} else {
+			for _, state := range states {
+				stateDailyDataForDay := []StateDailyData{}
+				query := fmt.Sprintf("state=%s&date=%d", state, d)
+				resp, err = c.Request("GET", apiPath, query)
+				if err != nil {
+					return nil, err
+				}
+				defer resp.Body.Close()
+				//body, _ := ioutil.ReadAll(resp.Body)
+				//fmt.Print(string(body))
+				err = json.NewDecoder(resp.Body).Decode(&stateDailyDataForDay)
+				if err != nil {
+					return nil, err
+				}
+				statesDailyData = append(statesDailyData, stateDailyDataForDay...)
+			}
+		}
+	}
+	return
+}
+
+func (c *Client) GetStates(states []string) (statesData []StateData, err error) {
+	var resp *http.Response
+
+	apiPath := "/api/states"
 
 	if states == nil || len(states) == 0 {
-		resp, err = c.Request("GET", api_path, "")
+		resp, err = c.Request("GET", apiPath, "")
 		if err != nil {
 			return nil, err
 		}
 		defer resp.Body.Close()
-		err = json.NewDecoder(resp.Body).Decode(&states_data)
+		err = json.NewDecoder(resp.Body).Decode(&statesData)
 		if err != nil {
 			return nil, err
 		}
 	} else {
 		for _, state := range states {
-			state_data := StateData{}
+			stateData := StateData{}
 			query := fmt.Sprintf("state=%s", state)
-			resp, err = c.Request("GET", api_path, query)
+			resp, err = c.Request("GET", apiPath, query)
 			if err != nil {
 				return nil, err
 			}
 			defer resp.Body.Close()
 			//body, _ := ioutil.ReadAll(resp.Body)
 			//fmt.Print(string(body))
-			err = json.NewDecoder(resp.Body).Decode(&state_data)
+			err = json.NewDecoder(resp.Body).Decode(&stateData)
 			if err != nil {
 				return nil, err
 			}
-			states_data = append(states_data, state_data)
+			statesData = append(statesData, stateData)
 		}
 	}
-	return states_data, err
+	return
 }

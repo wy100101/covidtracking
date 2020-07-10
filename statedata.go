@@ -35,26 +35,26 @@ func (s StateData) String() string {
 	return fmt.Sprintf("State: %s Negative: %-8d Positive: %-8d Pending: %-8d Total: %-8d", s.State, s.Negative, s.Positive, s.Pending, s.Total())
 }
 
-type ByTotal []StateData
+type StateDataByTotal []StateData
 
-func (s ByTotal) Len() int           { return len(s) }
-func (s ByTotal) Less(i, j int) bool { return s[i].Total() < s[j].Total() }
-func (s ByTotal) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s StateDataByTotal) Len() int           { return len(s) }
+func (s StateDataByTotal) Less(i, j int) bool { return s[i].Total() < s[j].Total() }
+func (s StateDataByTotal) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-type ByDeath []StateData
+type StateDataByDeath []StateData
 
-func (s ByDeath) Len() int           { return len(s) }
-func (s ByDeath) Less(i, j int) bool { return s[i].Death < s[j].Death }
-func (s ByDeath) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s StateDataByDeath) Len() int           { return len(s) }
+func (s StateDataByDeath) Less(i, j int) bool { return s[i].Death < s[j].Death }
+func (s StateDataByDeath) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-type ByPositive []StateData
+type StateDataByPositive []StateData
 
-func (s ByPositive) Len() int           { return len(s) }
-func (s ByPositive) Less(i, j int) bool { return s[i].Positive < s[j].Positive }
-func (s ByPositive) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s StateDataByPositive) Len() int           { return len(s) }
+func (s StateDataByPositive) Less(i, j int) bool { return s[i].Positive < s[j].Positive }
+func (s StateDataByPositive) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
 
-type ByState []StateData
+type StateDataByState []StateData
 
-func (s ByState) Len() int           { return len(s) }
-func (s ByState) Less(i, j int) bool { return s[i].State < s[j].State }
-func (s ByState) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }
+func (s StateDataByState) Len() int           { return len(s) }
+func (s StateDataByState) Less(i, j int) bool { return s[i].State < s[j].State }
+func (s StateDataByState) Swap(i, j int)      { s[i], s[j] = s[j], s[i] }

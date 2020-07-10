@@ -12,15 +12,15 @@ import (
 )
 
 var (
-	states_flag = kingpin.Flag("states", "states to show (comma separated").Short('s').String()
-	sort_flag   = kingpin.Flag("sort", "Sort key").Short('k').String()
+	statesFlag = kingpin.Flag("states", "states to show (comma separated").Short('s').String()
+	sortFlag   = kingpin.Flag("sort", "Sort key").Short('k').String()
 )
 
 func main() {
 	kingpin.Parse()
-	states_list := []string{}
-	if *states_flag != "" {
-		states_list = strings.Split(*states_flag, ",")
+	statesList := []string{}
+	if *statesFlag != "" {
+		statesList = strings.Split(*statesFlag, ",")
 	}
 
 	baseURL, err := url.Parse("https://covidtracking.com/")
@@ -30,21 +30,21 @@ func main() {
 	c := covidtracking.Client{
 		BaseURL:    baseURL,
 		UserAgent:  "RestClient",
-		HttpClient: http.DefaultClient,
+		HTTPClient: http.DefaultClient,
 	}
-	states, err := c.GetStates(states_list...)
+	states, err := c.GetStates(statesList)
 	if err != nil {
 		panic(err)
 	}
-	switch *sort_flag {
+	switch *sortFlag {
 	case "D":
-		sort.Sort(covidtracking.ByDeath(states))
+		sort.Sort(covidtracking.StateDataByDeath(states))
 	case "T":
-		sort.Sort(covidtracking.ByTotal(states))
+		sort.Sort(covidtracking.StateDataByTotal(states))
 	case "P":
-		sort.Sort(covidtracking.ByPositive(states))
+		sort.Sort(covidtracking.StateDataByPositive(states))
 	default:
-		sort.Sort(covidtracking.ByState(states))
+		sort.Sort(covidtracking.StateDataByState(states))
 	}
 
 	for _, s := range states {
